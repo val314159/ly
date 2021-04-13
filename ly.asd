@@ -1,4 +1,3 @@
-#!/bin/sh
 #|-*- mode:lisp -*-|#
 #|
 exec ros -Q -- $0 "$@"
@@ -8,11 +7,10 @@ exec ros -Q -- $0 "$@"
 ;;  (ros:ensure-asdf)
 ;;  #+quicklisp(ql:quickload '() :silent t)
 ;;  )
-(in-package :asdf-user)
-;;(require :asdf)
+(require :asdf)
 (require :uiop)
 (require :cl-libyaml)
-;;(in-package :asdf-user)
+(in-package :asdf-user)
 
 (defsystem  :ly
   :depends-on (:uiop :cl-libyaml))
