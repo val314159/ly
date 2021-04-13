@@ -1,20 +1,22 @@
 # ly
 ====
 
-lisp yaml, improved from cl-yaml (reads whole files with multiple documents)
+lisp yaml, improved from *cl-yaml* (reads whole files with multiple documents)
 
 ## Install
 
-you can just pop the `.lisp` file into *~/common-lisp* as an `.asd` file
+you can just pop the `.lisp` file into `~/common-lisp` as an `.asd` file
 
     cp ly.lisp ~/common-lisp/ly.asd
 
-### t3
+## Importing
 
-#### t4
+    (require :ly)
 
-- 11 **22**
+## Compiling
 
-- 11 *22*
+    ros build ly.lisp
 
-- 44 __55__
+## Running
+
+    common-lisp/ly.asd 11 22
