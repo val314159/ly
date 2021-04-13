@@ -18,7 +18,8 @@ exec ros -Q -- $0 "$@"
   :author "Your Name <your.name@example.com>"
   :license  "Specify license here"
   :version "0.0.1"
-  :depends-on (:uiop :cl-libyaml))
+  :depends-on (:uiop :cl-libyaml)
+  :components ((:file ly)))
 #|
 
 (defpackage :ly
