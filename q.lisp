@@ -2,7 +2,6 @@
 exec ros -Q -- $0 "$@" # |#
 (require :asdf)
 
-
 (in-package :asdf-user)
 
 (defsystem  :ly)
@@ -11,6 +10,8 @@ exec ros -Q -- $0 "$@" # |#
 (defpackage :ly
   (:export parse-string parse-file parse-path)
   (:use :cl)
+  (:import-from :uiop
+                :read-file-string)
   (:import-from :libyaml.macros
                 :with-parser
                 :with-event)
@@ -21,54 +22,32 @@ exec ros -Q -- $0 "$@" # |#
                 :event-type))
 (in-package :ly)
 
+(defmacro app (arr item) `(nconc arr (list ,item)))
+
 (defun parse-string2 (parser event)
-  (let (arr stack)
+  (let (stack (arr (list :f)))
     (loop
      (when (parse parser event)
        (let ((type (event-type event)))
-
 	 (when (eql type :scalar-event)
-	   (nconc arr (list (getf (event-scalar-data event) :value))))
-	 
-	 (when (eql type :stream-start-event)
+	   (app arr (getf (event-scalar-data event) :value)))
+	 (when (eql type :document-start-event)
 	   (push arr stack)
-	   (setf arr (list :x))
-	   )
-	 (when (eql type :arr-start-event)
-	   (push arr stack)
-	   (setf arr (list :d))
-	   )
+	   (setf arr (list :d)))
 	 (when (eql type :sequence-start-event)
 	   (push arr stack)
-	   (setf arr (list :s))
-	   )
+	   (setf arr (list :s)))
 	 (when (eql type :mapping-start-event)
 	   (push arr stack)
-	   (setf arr (list :m))
-	   )
-	 
-	 (when (eql type :arr-end-event)
-	   (let ((oldarr arr))
-	     (setf  arr (pop stack))
-	     (nconc arr (list oldarr)))
-	   )
+	   (setf arr (list :m)))
+	 (when (eql type :document-end-event)
+	   (setf arr (app (pop stack) arr)))
 	 (when (eql type :sequence-end-event)
-	   (let ((oldarr arr))
-	     (setf  arr (pop stack))
-	     (nconc arr (list oldarr))
-	   ))
+	   (setf arr (app (pop stack) arr)))
 	 (when (eql type :mapping-end-event)
-	   (let ((oldarr arr))
-	     (setf  arr (pop stack))
-	     (nconc arr (list oldarr))
-	   ))
+	   (setf arr (app (pop stack) arr)))
 	 (when (eql type :stream-end-event)
-	   (let ((oldarr arr))
-	     (setf  arr (pop stack))
-	     (nconc arr (list oldarr))
-	     (return-from parse-string2 arr)
-	     ))
-	 )))))
+	   (return-from parse-string2 arr)))))))
 
 (defun parse-string (string)
   (with-parser (parser string)
@@ -77,7 +56,7 @@ exec ros -Q -- $0 "$@" # |#
 
 
 (defun parse-file (file)
-  (parse-string (uiop:read-file-string file)))
+  (parse-string (read-file-string file)))
 
 (defun parse-path (path)
   (parse-file (open path)))
@@ -87,7 +66,7 @@ exec ros -Q -- $0 "$@" # |#
   (print rest)
   (print (parse-string "[1,2,3]"))
   (mapcar (lambda (x) (print "===") (print (parse-path x))) rest)
-  t)
+  (terpri))
 
 (if (uiop:getenv "TEST") (main))
 
