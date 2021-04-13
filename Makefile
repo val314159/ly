@@ -1,2 +1,2 @@
 all:
-	./ly.lisp *.yml
+	./ly.asd *.yml
